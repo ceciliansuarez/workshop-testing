@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Interactivo de Testing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutrals -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive educational hub. A fixed sidebar navigation allows users to jump to key topics (Intro, Pyramid, Test Types, Test Doubles, Best Practices, Quiz), which is more effective for learning and reference than a linear scroll. The core content is displayed in a main area, using interactive elements like a clickable pyramid, tabbed sections for detailed information, and a dynamic quiz. This structure breaks down complex information into manageable, explorable chunks, promoting user engagement and better understanding of the relationships between testing concepts. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Testing Pyramid concept. -> Goal: Compare testing levels. -> Viz: Interactive pyramid (HTML/CSS) and a Chart.js bar chart comparing test volume/cost. -> Interaction: Clicking a pyramid layer highlights it and reveals summary data. -> Justification: Transforms a static concept into an engaging, explorable diagram, reinforcing the core ideas of cost and volume. -> Library: Chart.js.
+        - Report Info: Details of Unit, Integration, E2E tests. -> Goal: Organize detailed content. -> Viz: Tabbed interface. -> Interaction: Click tabs to switch between test types. -> Justification: A standard, user-friendly pattern to present dense, related information without overwhelming the user. -> Library/Method: Vanilla JS.
+        - Report Info: Test Doubles (Stub, Mock, Fake, Dummy, Spy). -> Goal: Inform and provide examples. -> Viz: Card-based layout for definitions, links for CodeSandbox examples. -> Interaction: Clickable links to external examples. -> Justification: Clearly defines each double and points to practical implementations. -> Library/Method: HTML/Tailwind, external links.
+        - Report Info: Best Practices. -> Goal: Inform. -> Viz: Card-based layout. -> Interaction: Hover effects. -> Justification: Cards are more scannable and visually appealing than a simple list. -> Library/Method: HTML/Tailwind.
+        - Report Info: Workshop content review. -> Goal: Assess understanding. -> Viz: Dynamic multiple-choice quiz. -> Interaction: Select answers, submit, view results, retake. -> Justification: Provides an engaging way for users to test their knowledge and reinforce learning. -> Library/Method: Vanilla JS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+            color: #212529;
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        .nav-link.active, .nav-link:hover {
+            background-color: #E9ECEF;
+            border-left-color: #0D6EFD;
+            color: #0D6EFD;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .pyramid-layer {
+            clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .pyramid-layer:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        .tab-button.active {
+            border-bottom-color: #0D6EFD;
+            color: #0D6EFD;
+            font-weight: 600;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside class="w-full md:w-64 bg-white shadow-md">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-gray-800">Testing Workshop</h1>
+                <p class="text-sm text-gray-500">Guía Interactiva</p>
+                <p class="text-sm text-gray-500 mt-2">Created by: Cecilia Suárez</p>
+            </div>
+            <nav id="main-nav" class="mt-4">
+                <a href="#intro" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F4DD; Introducción</a>
+                <a href="#pyramid" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F4C8; Pirámide de Testing</a>
+                <a href="#types" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F52C; Tipos de Test</a>
+                <a href="#doubles" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F464; Dobles de Test</a>
+                <a href="#practices" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x2705; Mejores Prácticas</a>
+                <a href="#strategies" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F527; Estrategias y Metodologías</a>
+                <a href="#security-testing" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F512; Seguridad en el Testing</a>
+                <a href="#quiz" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F4AC; Cuestionario</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-6 md:p-10">
+            <div id="intro" class="content-section">
+                <h2 class="text-4xl font-bold mb-4">¿Por qué es crucial testear el software?</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    El testing no es solo para encontrar errores; es una disciplina fundamental para construir software robusto, mantenible y confiable. Asegura que cada pieza del sistema funcione como se espera, dando confianza tanto a los desarrolladores para innovar como a los usuarios para depender de la aplicación. Esta sección explora los motivos principales que hacen del testing una inversión inteligente en cualquier proyecto de software.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">✅ Calidad del Software</h3>
+                        <p>Asegurar que el software funciona como se espera, cumpliendo con los requerimientos y expectativas.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">🤝 Confianza</h3>
+                        <p>Dar seguridad a desarrolladores para realizar cambios y a los usuarios para utilizar el producto sin sorpresas.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">🐞 Reducción de Errores</h3>
+                        <p>Identificar y corregir bugs de forma temprana en el ciclo de desarrollo, cuando es más barato y fácil hacerlo.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">🔧 Facilita el Mantenimiento</h3>
+                        <p>Permite refactorizar y añadir nuevas funcionalidades con un riesgo mucho menor de introducir regresiones.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">📖 Documentación Viva</h3>
+                        <p>Los tests actúan como una documentación ejecutable que describe cómo debe comportarse el código.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pyramid" class="content-section">
+                <h2 class="text-4xl font-bold mb-4">La Pirámide de Testing</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    La pirámide de testing es un modelo estratégico que nos ayuda a pensar sobre cómo distribuir los esfuerzos de testing de manera eficiente. No todos los tests son iguales; varían en velocidad, coste y alcance. Esta sección visualiza este concepto, permitiéndote interactuar con cada nivel para entender su rol y comparar sus características clave a través de un gráfico dinámico.
+                </p>
+                <div class="flex flex-col lg:flex-row gap-8 items-center">
+                    <div class="w-full lg:w-1/2">
+                        <div id="interactive-pyramid" class="w-full max-w-sm mx-auto flex flex-col items-center">
+                            <div data-type="e2e" class="pyramid-layer w-1/2 h-20 bg-red-400 flex items-center justify-center text-white font-bold text-lg">E2E</div>
+                            <div data-type="integration" class="pyramid-layer w-3/4 h-24 bg-yellow-400 flex items-center justify-center text-white font-bold text-lg">Integración</div>
+                            <div data-type="unit" class="pyramid-layer w-full h-28 bg-blue-400 flex items-center justify-center text-white font-bold text-lg">Unitarios</div>
+                        </div>
+                        <div id="pyramid-info" class="mt-6 bg-white p-6 rounded-lg shadow text-center">
+                            <p class="text-gray-600">Haz clic en un nivel de la pirámide para ver los detalles.</p>
+                        </div>
+                    </div>
+                    <div class="w-full lg:w-1/2">
+                        <div class="chart-container">
+                            <canvas id="pyramidChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="types" class="content-section">
+                <h2 class="text-4xl font-bold mb-4">Explorando los Tipos de Test</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    Cada tipo de test tiene un propósito específico dentro de nuestra estrategia de calidad. Desde la verificación de la lógica más pequeña hasta la simulación completa de la experiencia del usuario. En esta sección, puedes navegar a través de las pestañas para profundizar en los tests Unitarios, de Integración y End-to-End, entendiendo qué son, qué prueban y qué herramientas se utilizan comúnmente para cada uno.
+                </p>
+                <div class="border-b border-gray-200 mb-6">
+                    <nav id="test-type-tabs" class="flex space-x-8 -mb-px">
+                        <button data-target="unit-content" class="tab-button py-4 px-1 border-b-2 border-transparent text-lg text-gray-500 hover:text-gray-700 hover:border-gray-300">Unitario</button>
+                        <button data-target="integration-content" class="tab-button py-4 px-1 border-b-2 border-transparent text-lg text-gray-500 hover:text-gray-700 hover:border-gray-300">Integración</button>
+                        <button data-target="e2e-content" class="tab-button py-4 px-1 border-b-2 border-transparent text-lg text-gray-500 hover:text-gray-700 hover:border-gray-300">End-to-End (E2E)</button>
+                    </nav>
+                </div>
+
+                <div id="unit-content" class="tab-content">
+                    <h3 class="text-2xl font-bold mb-3">Testing Unitario: La Base de la Calidad</h3>
+                    <p class="mb-6">Prueba la unidad más pequeña y aislada de código (una función, un método). Se enfoca en la lógica interna de un componente, asegurando que cada pieza funcione correctamente por sí sola.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-lg mb-2">Características Clave</h4>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li><strong>Aislado:</strong> No depende de BBDD, APIs, etc. (usa mocks/stubs).</li>
+                                <li><strong>Rápido:</strong> Se ejecutan en milisegundos.</li>
+                                <li><strong>Fácil de escribir y mantener.</strong></li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-lg mb-2">¿Qué Testear?</h4>
+                             <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>Lógica de negocio.</li>
+                                <li>Casos de borde (errores, nulos, límites).</li>
+                                <li>Condiciones y bucles.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm col-span-1 md:col-span-2">
+                            <h4 class="font-bold text-lg mb-2">Herramientas Populares</h4>
+                            <p><strong class="text-blue-600">JS/TS:</strong> Jest, Mocha, Vitest | <strong class="text-green-600">Python:</strong> unittest, Pytest | <strong class="text-purple-600">PHP/Laravel:</strong> PHPUnit, Pest</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="integration-content" class="tab-content hidden">
+                    <h3 class="text-2xl font-bold mb-3">Testing de Integración: Conectando las Piezas</h3>
+                    <p class="mb-6">Prueba la interacción entre diferentes unidades o componentes del sistema. Verifica que los módulos se comunican y funcionan juntos correctamente, por ejemplo, cómo un servicio interactúa con la base de datos.</p>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-lg mb-2">Características Clave</h4>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li><strong>Interacciones:</strong> Involucra BBDD, APIs internas, etc.</li>
+                                <li><strong>Más lento</strong> que los tests unitarios.</li>
+                                <li><strong>Requiere un entorno más complejo.</strong></li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-lg mb-2">¿Qué Testear?</h4>
+                             <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>Comunicación entre servicios.</li>
+                                <li>Operaciones CRUD con la base de datos.</li>
+                                <li>Flujos de datos entre capas.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm col-span-1 md:col-span-2">
+                            <h4 class="font-bold text-lg mb-2">Herramientas Populares</h4>
+                            <p>Mismos frameworks unitarios (Jest, Pytest, PHPUnit) con dependencias reales, Supertest (APIs), Testcontainers.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="e2e-content" class="tab-content hidden">
+                    <h3 class="text-2xl font-bold mb-3">Testing E2E: La Experiencia del Usuario</h3>
+                    <p class="mb-6">Simula el flujo de un usuario real a través de la aplicación completa. Verifica la funcionalidad del sistema de principio a fin, desde la interfaz de usuario hasta la base de datos y sistemas externos.</p>
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-lg mb-2">Características Clave</h4>
+                            <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li><strong>Alto nivel:</strong> Prueba toda la pila tecnológica.</li>
+                                <li><strong>Lento:</strong> Requiere lanzar navegadores, servicios, etc.</li>
+                                <li><strong>Frágil y costoso</strong> de mantener.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h4 class="font-bold text-lg mb-2">¿Qué Testear?</h4>
+                             <ul class="list-disc list-inside text-gray-700 space-y-2">
+                                <li>Flujos de usuario críticos (registro, compra).</li>
+                                <li>Integración con sistemas externos (pagos).</li>
+                                <li>La experiencia de usuario completa.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm col-span-1 md:col-span-2">
+                            <h4 class="font-bold text-lg mb-2">Herramientas Populares</h4>
+                            <p><strong class="text-cyan-600">Web:</strong> Cypress, Playwright, Selenium | <strong class="text-red-600">Móvil:</strong> Appium, Detox</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="doubles" class="content-section">
+                <h2 class="text-4xl font-bold mb-4">🎭 Dobles de Test: Simulando Dependencias</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    Los dobles de test son objetos que se utilizan para reemplazar dependencias reales de un componente durante el testing. Esto permite aislar la unidad de código que se está probando y controlar su comportamiento, haciendo los tests más rápidos, confiables y reproducibles. Esta sección detalla los diferentes tipos de dobles de test y cuándo utilizar cada uno, con enlaces a ejemplos prácticos.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Dummy (Objeto Ficticio)</h3>
+                        <p>Objetos que se pasan pero nunca se usan. Sirven como marcadores de posición para llenar listas de parámetros.</p>
+                        <p class="mt-4">
+                            <a href="https://codesandbox.io/s/react-dummy-example-v9z9x" target="_blank" class="text-blue-500 hover:underline">Ejemplo de Dummy</a>
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Stub (Sustituto)</h3>
+                        <p>Proporcionan respuestas predefinidas a las llamadas durante el test, sin lógica real. Útiles para controlar el comportamiento de una dependencia.</p>
+                        <p class="mt-4">
+                            <a href="https://codesandbox.io/s/react-stub-example-f2x2q" target="_blank" class="text-blue-500 hover:underline">Ejemplo de Stub</a>
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Spy (Espía)</h3>
+                        <p>Son objetos reales que se utilizan para registrar llamadas a métodos o propiedades. Permiten verificar si un método fue llamado, cuántas veces, y con qué argumentos.</p>
+                        <p class="mt-4">
+                            <a href="https://codesandbox.io/s/react-spy-example-j7t7p" target="_blank" class="text-blue-500 hover:underline">Ejemplo de Spy</a>
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Mock (Simulacro)</h3>
+                        <p>Objetos pre-programados con expectativas sobre cómo se les llamará. Fallan el test si las expectativas no se cumplen. Se centran en la verificación del comportamiento.</p>
+                        <p class="mt-4">
+                            <a href="https://codesandbox.io/s/react-mock-example-k4p4m" target="_blank" class="text-blue-500 hover:underline">Ejemplo de Mock</a>
+                        </p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Fake (Falso)</h3>
+                        <p>Implementaciones con funcionalidad real, pero simplificadas. Por ejemplo, una base de datos en memoria en lugar de una real.</p>
+                        <p class="mt-4">
+                            <a href="https://codesandbox.io/s/react-fake-example-g8r8s" target="_blank" class="text-blue-500 hover:underline">Ejemplo de Fake</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="practices" class="content-section">
+                 <h2 class="text-4xl font-bold mb-4">Mejores Prácticas de Testing</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    Escribir tests es solo el principio. Para obtener el máximo valor, es crucial seguir un conjunto de buenas prácticas que aseguren que nuestros tests sean efectivos, mantenibles y confiables. Esta sección resume los principios clave que te ayudará a construir una suite de tests sólida y a cultivar una cultura de calidad en tu equipo.
+                </p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Código Testeable</h3>
+                        <p>Diseña tus componentes para que sean fáciles de testear (inyección de dependencias, funciones puras).</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** Imagina el diseño de una aeronave moderna. Cada subsistema (motor, aviónica, tren de aterrizaje) se diseña con interfaces claras y responsabilidades únicas, permitiendo que cada uno sea probado rigurosamente de forma aislada antes de la integración final. Un diseño monolítico, donde todo está interconectado sin separación lógica, haría las pruebas y el mantenimiento extremadamente complejos y costosos.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Tests Enfocados</h3>
+                        <p>Cada test debe probar una única cosa. Esto hace que sean más fáciles de entender y depurar cuando fallan.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** Piensa en el diagnóstico de un sistema de red complejo. Si una alerta general indica que "la red está lenta", es difícil saber dónde está el problema. Sin embargo, si tienes tests específicos que verifican el rendimiento del DNS, la latencia de la base de datos, o el ancho de banda de un microservicio particular, puedes identificar la causa raíz de inmediato y con precisión.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Automatiza en CI/CD</h3>
+                        <p>Integra tus tests en tu pipeline de integración y despliegue continuo para obtener feedback constante.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** Es como un sistema de monitoreo de signos vitales en un paciente en cuidados intensivos. En lugar de que un médico revise manualmente cada parámetro cada hora, un sistema automatizado monitorea continuamente y alerta al instante sobre cualquier anomalía crítica, permitiendo una intervención inmediata y proactiva.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Nombres Claros</h3>
+                        <p>Nombra tus tests de forma descriptiva. Un buen nombre explica qué se está probando y bajo qué condiciones.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** Considera un manual de operaciones para una pieza de maquinaria industrial. Cada procedimiento está claramente etiquetado con su propósito específico y sus condiciones de aplicación (ej., "Procedimiento de apagado de emergencia del motor principal bajo sobrecarga"). Un nombre ambiguo (ej., "Apagar motor") podría llevar a errores catastróficos. Los nombres de tests deben ser igual de precisos.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">"Fail Fast"</h3>
+                        <p>Los tests deben fallar rápidamente si hay un problema, proporcionando feedback inmediato al desarrollador.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** En un proceso de fabricación en cadena, un sistema de detección "fail fast" identifica un componente defectuoso en la primera estación de ensamblaje. Esto evita que el componente defectuoso continúe por toda la línea, acumulando más valor y recursos en un producto que eventualmente será desechado. Detectar el fallo temprano minimiza el desperdicio y el retrabajo.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Balancea la Pirámide</h3>
+                        <p>No te excedas en tests E2E. Prioriza los tests unitarios y de integración para una suite más rápida y estable.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** Piensa en la construcción de un rascacielos. La mayoría de la inversión y el esfuerzo se destinan a los cimientos y la estructura interna (tests unitarios y de integración), que son fundamentales y se revisan constantemente. La inspección final del edificio completo (tests E2E) es crucial, pero se realiza con menos frecuencia y solo después de que las capas inferiores han demostrado ser sólidas. Una inversión desproporcionada en la inspección final sin una base sólida sería ineficiente y arriesgada.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="strategies" class="content-section">
+                <h2 class="text-4xl font-bold mb-4">Estrategias y Metodologías de Testing</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    Cuando un sistema depende principalmente de pruebas manuales, la transición hacia la automatización y la adopción de metodologías modernas es un paso crucial para escalar la calidad y la eficiencia. Esta sección explora cómo integrar el testing de forma más profunda en el ciclo de desarrollo, reduciendo la dependencia de QA manual y empoderando al equipo de desarrollo.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">Automatización como Prioridad</h3>
+                        <p>Dejar de depender exclusivamente de QA manual para la regresión. Identificar los tests manuales repetitivos y de alto impacto para automatizarlos primero. Esto libera al equipo de QA para tareas más exploratorias y de alto valor.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** Pasar de revisar cada producto a mano en una fábrica a implementar una línea de control de calidad automatizada. La automatización maneja el volumen y la repetitividad, mientras los expertos se enfocan en la innovación y la mejora.</p>
+                        <div class="chart-container mt-4">
+                            <canvas id="automationChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">Desarrollo Guiado por Pruebas (TDD)</h3>
+                        <p>Un ciclo de desarrollo donde se escribe un test que falla, luego se escribe el código mínimo para que pase, y finalmente se refactoriza. Fomenta un diseño más limpio y modular.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Ciclo:** <span class="font-bold text-red-500">Rojo</span> (escribe test que falla) &#x2192; <span class="font-bold text-green-500">Verde</span> (escribe código para que pase) &#x2192; <span class="font-bold text-blue-500">Refactoriza</span> (mejora el código).<br>
+                        **Beneficios:** Diseño incremental, alta cobertura, menos bugs, documentación viva.</p>
+                        <div class="mt-4 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-700">
+                            <p class="font-semibold">Visualización del Ciclo TDD:</p>
+                            <p class="mt-2">1. 🔴 Escribir un test que falla</p>
+                            <p>2. 🟢 Escribir el código mínimo para que el test pase</p>
+                            <p>3. 🔵 Refactorizar el código para mejorarlo</p>
+                            <p class="mt-2 text-xs">Este ciclo se repite continuamente, impulsando el desarrollo.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">Desarrollo Guiado por Comportamiento (BDD)</h3>
+                        <p>Extiende TDD enfocándose en el comportamiento del sistema desde la perspectiva del usuario. Utiliza un lenguaje ubicuo (ej. Gherkin: `Dado`, `Cuando`, `Entonces`) para facilitar la colaboración entre desarrolladores, QA y stakeholders.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** En lugar de que el arquitecto (desarrollador) y el cliente (usuario) hablen en lenguajes diferentes, BDD crea un plano común y comprensible para todos, asegurando que lo que se construye es exactamente lo que se necesita y cómo se espera que funcione.</p>
+                        <div class="mt-4 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-700">
+                            <p class="font-semibold">Ejemplo de Escenario BDD (Gherkin):</p>
+                            <pre class="bg-gray-200 p-2 rounded-md text-left mt-2 overflow-x-auto"><code>
+Característica: Gestión de Pedidos
+  Como cliente
+  Quiero poder añadir productos a mi carrito
+  Para poder comprarlos
+
+  Escenario: Añadir un producto al carrito
+    Dado que estoy en la página de un producto
+    Y el producto "Laptop X" está disponible con 5 unidades
+    Cuando añado "Laptop X" al carrito
+    Entonces el carrito debe mostrar "Laptop X" con 1 unidad
+    Y el stock de "Laptop X" debe ser 4
+                            </code></pre>
+                            <p class="mt-2 text-xs">Este formato facilita la comunicación y la automatización.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">Shift-Left Testing</h3>
+                        <p>Mover las actividades de testing lo más temprano posible en el ciclo de desarrollo. En lugar de testear solo al final, se integra el testing desde el diseño y la codificación.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** Es como un médico que previene enfermedades con chequeos regulares y hábitos saludables, en lugar de solo tratar enfermedades cuando ya están avanzadas. Detectar y corregir problemas temprano es exponencialmente más barato y menos disruptivo.</p>
+                        <div class="chart-container mt-4">
+                            <canvas id="shiftLeftChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">Cobertura de Código y Métricas</h3>
+                        <p>La cobertura de código mide qué porcentaje del código fuente es ejecutado por los tests. Es una métrica útil, pero no debe ser el único objetivo.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Consideraciones:** Una alta cobertura no garantiza calidad si los tests son débiles. Complementar con métricas de calidad de código (complejidad ciclomática), frecuencia de fallos, tiempo de resolución de bugs, y feedback de usuarios para una visión holística.</p>
+                        <div class="mt-4 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-700">
+                            <p class="font-semibold">Métricas Complementarias:</p>
+                            <ul class="list-disc list-inside text-left mt-2 space-y-1">
+                                <li>**Complejidad Ciclomática:** Indica la complejidad de las rutas de ejecución.</li>
+                                <li>**Densidad de Defectos:** Número de defectos por unidad de código.</li>
+                                <li>**Tiempo Medio de Resolución (MTTR):** Tiempo para arreglar un bug desde su detección.</li>
+                                <li>**Satisfacción del Usuario:** Feedback directo sobre la calidad percibida.</li>
+                            </ul>
+                            <p class="mt-2 text-xs">Una combinación de métricas ofrece una visión más completa de la calidad.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="security-testing" class="content-section">
+                <h2 class="text-4xl font-bold mb-4">Seguridad en el Testing: Escaneo de Código y Secretos</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    La seguridad no es un añadido, sino una parte integral de la calidad del software. Integrar el escaneo de seguridad desde las primeras etapas del desarrollo es crucial para identificar y remediar vulnerabilidades y exposiciones de información sensible antes de que lleguen a producción.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">Escaneo de Código (Code Scanning)</h3>
+                        <p>Análisis automatizado del código fuente para detectar patrones de vulnerabilidades de seguridad (ej. inyecciones SQL, Cross-Site Scripting - XSS, deserialización insegura).</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** Piensa en un arquitecto que utiliza un software avanzado para revisar sus planos en busca de fallos estructurales o puntos débiles en la seguridad del edificio antes de que se coloque el primer ladrillo. Detectar estos problemas en la fase de diseño o planificación es mucho más barato y fácil que corregirlos una vez que el edificio está en construcción o, peor aún, habitado.</p>
+                        <div class="mt-4 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-700">
+                            <p class="font-semibold">Flujo Típico de Code Scanning:</p>
+                            <p class="mt-2">**Desarrollo** &#x2192; **Commit de Código** &#x2192; **Análisis Automático** &#x2192; **Reporte de Vulnerabilidades** &#x2192; **Corrección Temprana**</p>
+                            <p class="mt-2 text-xs">Integrado en el CI/CD, proporciona feedback inmediato.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="font-bold text-xl mb-2">Escaneo de Secretos (Secret Scanning)</h3>
+                        <p>Herramientas que buscan credenciales, claves API, tokens de acceso y otra información sensible que haya sido accidentalmente expuesta o "hardcodeada" en el repositorio de código.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Analogía:** Es como un sistema de seguridad que, antes de que un camión de caudales salga de la bóveda, escanea cada paquete para asegurarse de que no haya billetes sueltos o joyas expuestas accidentalmente. Si se detecta algo, se retiene el camión y se asegura el secreto antes de que pueda ser robado o comprometido en el camino.</p>
+                        <div class="mt-4 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-700">
+                            <p class="font-semibold">Riesgos de Secretos Expuestos:</p>
+                            <ul class="list-disc list-inside text-left mt-2 space-y-1">
+                                <li>Acceso no autorizado a sistemas.</li>
+                                <li>Robo de datos.</li>
+                                <li>Costos económicos por uso indebido de recursos.</li>
+                                <li>Daño a la reputación de la empresa.</li>
+                            </ul>
+                            <p class="mt-2 text-xs">La detección temprana es clave para mitigar estos riesgos.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quiz" class="content-section">
+                <h2 class="text-4xl font-bold mb-4">❓ Cuestionario: Pon a Prueba tus Conocimientos</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    Es hora de consolidar lo aprendido. Este cuestionario dinámico te ayudará a repasar los conceptos clave sobre testing unitario, de integración y E2E, así como los diferentes tipos de dobles de test. ¡Responde con honestidad y comprueba tu progreso!
+                </p>
+                <form id="quiz-form" class="bg-white p-8 rounded-lg shadow">
+                    <div id="quiz-questions">
+                        <!-- Questions will be rendered here by JavaScript -->
+                    </div>
+                    <button type="submit" class="mt-8 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors">
+                        Enviar Cuestionario
+                    </button>
+                </form>
+                <div id="quiz-results" class="mt-8 bg-white p-8 rounded-lg shadow hidden">
+                    <h3 class="text-2xl font-bold mb-4">Resultados del Cuestionario</h3>
+                    <p id="score-display" class="text-xl mb-4"></p>
+                    <div id="feedback-display">
+                        <!-- Feedback for each question will be displayed here -->
+                    </div>
+                    <button id="retake-quiz-button" class="mt-6 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">
+                        Volver a Intentar
+                    </button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('#main-nav a');
+            const contentSections = document.querySelectorAll('.content-section');
+            const pyramidLayers = document.querySelectorAll('.pyramid-layer');
+            const pyramidInfo = document.getElementById('pyramid-info');
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const quizForm = document.getElementById('quiz-form');
+            const quizQuestionsContainer = document.getElementById('quiz-questions');
+            const quizResultsContainer = document.getElementById('quiz-results');
+            const scoreDisplay = document.getElementById('score-display');
+            const feedbackDisplay = document.getElementById('feedback-display');
+            const retakeQuizButton = document.getElementById('retake-quiz-button');
+
+            const pyramidData = {
+                unit: {
+                    title: 'Tests Unitarios (Base)',
+                    description: 'Muchos, rápidos y baratos. Verifican componentes aislados.',
+                    color: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    values: [80, 10, 10]
+                },
+                integration: {
+                    title: 'Tests de Integración (Medio)',
+                    description: 'Menos cantidad, más lentos y costosos. Verifican la comunicación entre módulos.',
+                    color: 'rgba(251, 191, 36, 0.7)',
+                    borderColor: 'rgba(251, 191, 36, 1)',
+                    values: [15, 40, 40]
+                },
+                e2e: {
+                    title: 'Tests End-to-End (Cima)',
+                    description: 'Pocos, lentos y caros. Verifican flujos de usuario completos.',
+                    color: 'rgba(248, 113, 113, 0.7)',
+                    borderColor: 'rgba(248, 113, 113, 1)',
+                    values: [5, 50, 50]
+                }
+            };
+
+            const quizQuestions = [
+                {
+                    question: "En el contexto de la pirámide de testing, ¿cuál es la principal desventaja de depender excesivamente de los tests E2E?",
+                    options: [
+                        "Son demasiado rápidos y pueden pasar por alto errores sutiles.",
+                        "Son costosos de mantener y lentos de ejecutar, ralentizando el ciclo de desarrollo.",
+                        "No pueden simular interacciones de usuario complejas.",
+                        "Requieren demasiados dobles de test, complicando la configuración."
+                    ],
+                    answer: "Son costosos de mantener y lentos de ejecutar, ralentizando el ciclo de desarrollo."
+                },
+                {
+                    question: "Si estás probando un componente que realiza una llamada a un servicio externo, ¿qué tipo de doble de test sería el más apropiado para simular la respuesta de ese servicio en un test unitario?",
+                    options: [
+                        "Dummy",
+                        "Spy",
+                        "Stub",
+                        "Fake"
+                    ],
+                    answer: "Stub"
+                },
+                {
+                    question: "Un test de integración falla. ¿Qué indica este fallo con mayor probabilidad?",
+                    options: [
+                        "Un error en la lógica interna de una función aislada.",
+                        "Un problema en la comunicación o el contrato entre dos o más módulos.",
+                        "Un error de interfaz de usuario que impide la interacción del usuario final.",
+                        "Un problema de rendimiento bajo alta carga."
+                    ],
+                    answer: "Un problema en la comunicación o el contrato entre dos o más módulos."
+                },
+                {
+                    question: "Estás refactorizando una función crítica de negocio. ¿Qué tipo de test te proporcionará la retroalimentación más rápida y confiable sobre si la lógica interna de esa función sigue siendo correcta?",
+                    options: [
+                        "Test E2E",
+                        "Test de Integración",
+                        "Test Unitario",
+                        "Test de Carga"
+                    ],
+                    answer: "Test Unitario"
+                },
+                {
+                    question: "Diferencia clave entre un Mock y un Spy es que un Mock:",
+                    options: [
+                        "Solo registra llamadas, mientras que un Spy también puede simular respuestas.",
+                        "Es un objeto real, mientras que un Spy es una implementación simplificada.",
+                        "Tiene expectativas pre-programadas sobre cómo será llamado, fallando el test si no se cumplen, a diferencia de un Spy que solo observa.",
+                        "Se usa para reemplazar dependencias que no se usan, mientras que un Spy se usa para dependencias activas."
+                    ],
+                    answer: "Tiene expectativas pre-programadas sobre cómo será llamado, fallando el test si no se cumplen, a diferencia de un Spy que solo observa."
+                },
+                {
+                    question: "¿Cuál es el objetivo principal de los tests de integración?",
+                    options: [
+                        "Verificar el comportamiento de unidades de código aisladas.",
+                        "Asegurar que los diferentes módulos o servicios interactúan correctamente entre sí.",
+                        "Simular la experiencia completa del usuario final.",
+                        "Medir el rendimiento del sistema bajo carga."
+                    ],
+                    answer: "Asegurar que los diferentes módulos o servicios interactúan correctamente entre sí."
+                },
+                {
+                    question: "Si necesitas una implementación simplificada de una dependencia real (ej. una base de datos en memoria) para tus tests, ¿qué tipo de doble de test usarías?",
+                    options: [
+                        "Stub",
+                        "Mock",
+                        "Fake",
+                        "Dummy"
+                    ],
+                    answer: "Fake"
+                },
+                {
+                    question: "¿Qué tipo de test es más susceptible a romperse debido a cambios en la interfaz de usuario?",
+                    options: [
+                        "Test Unitario",
+                        "Test de Integración",
+                        "Test E2E",
+                        "Test de Componente"
+                    ],
+                    answer: "Test E2E"
+                },
+                {
+                    question: "Al escribir tests, ¿por qué es una buena práctica mantenerlos 'enfocados'?",
+                    options: [
+                        "Para que cada test pruebe múltiples funcionalidades a la vez.",
+                        "Para que cada test pruebe una única cosa, facilitando la depuración.",
+                        "Para que los tests sean más lentos y detecten más errores.",
+                        "Para reducir la cantidad total de tests en el proyecto."
+                    ],
+                    answer: "Para que cada test pruebe una única cosa, facilitando la depuración."
+                },
+                {
+                    question: "¿Qué doble de test se utiliza cuando un objeto se pasa como argumento pero su comportamiento no es relevante para el test?",
+                    options: [
+                        "Stub",
+                        "Mock",
+                        "Spy",
+                        "Dummy"
+                    ],
+                    answer: "Dummy"
+                }
+            ];
+
+            function showSection(hash) {
+                const targetHash = hash || '#intro';
+                
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === targetHash) {
+                        link.classList.add('active');
+                    }
+                });
+
+                const activeSection = document.querySelector(targetHash);
+                if (activeSection) {
+                    activeSection.classList.add('active');
+                }
+            }
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = e.currentTarget.getAttribute('href');
+                    history.pushState(null, null, targetId);
+                    showSection(targetId);
+                });
+            });
+            
+            window.addEventListener('popstate', () => {
+                showSection(window.location.hash);
+            });
+
+            showSection(window.location.hash);
+
+            pyramidLayers.forEach(layer => {
+                layer.addEventListener('click', (e) => {
+                    const type = e.currentTarget.dataset.type;
+                    const data = pyramidData[type];
+                    pyramidInfo.innerHTML = `
+                        <h4 class="font-bold text-xl mb-2" style="color: ${data.borderColor};">${data.title}</h4>
+                        <p>${data.description}</p>
+                    `;
+                });
+            });
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const targetId = e.currentTarget.dataset.target;
+
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                        if (content.id === targetId) {
+                            content.classList.remove('hidden');
+                        }
+                    });
+                });
+            });
+            tabButtons[0].click();
+
+            const ctx = document.getElementById('pyramidChart').getContext('2d');
+            const pyramidChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Cantidad de Tests', 'Costo de Mantenimiento', 'Tiempo de Ejecución'],
+                    datasets: [{
+                        label: 'Unitarios',
+                        data: pyramidData.unit.values,
+                        backgroundColor: pyramidData.unit.color,
+                        borderColor: pyramidData.unit.borderColor,
+                        borderWidth: 1
+                    }, {
+                        label: 'Integración',
+                        data: pyramidData.integration.values,
+                        backgroundColor: pyramidData.integration.color,
+                        borderColor: pyramidData.integration.borderColor,
+                        borderWidth: 1
+                    }, {
+                        label: 'E2E',
+                        data: pyramidData.e2e.values,
+                        backgroundColor: pyramidData.e2e.color,
+                        borderColor: pyramidData.e2e.borderColor,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            stacked: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + "%"
+                                }
+                            }
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Distribución Relativa de Esfuerzo por Tipo de Test',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.x !== null) {
+                                        label += context.parsed.x + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // New chart for Automation as Priority
+            const automationCtx = document.getElementById('automationChart').getContext('2d');
+            new Chart(automationCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Manual', 'Automatizado'],
+                    datasets: [{
+                        label: 'Tiempo de Ejecución (horas/semana)',
+                        data: [40, 5], // Ejemplo: 40 horas manual vs 5 horas automatizado
+                        backgroundColor: ['rgba(255, 99, 132, 0.7)', 'rgba(75, 192, 192, 0.7)'],
+                        borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)'],
+                        borderWidth: 1
+                    }, {
+                        label: 'Costo de Mantenimiento (USD/mes)',
+                        data: [200, 50], // Ejemplo: 200 USD manual vs 50 USD automatizado
+                        backgroundColor: ['rgba(54, 162, 235, 0.7)', 'rgba(153, 102, 255, 0.7)'],
+                        borderColor: ['rgba(54, 162, 235, 1)', 'rgba(153, 102, 255, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Comparación: Testing Manual vs. Automatizado',
+                            font: {
+                                size: 16
+                            }
+                        }
+                    }
+                }
+            });
+
+            // New chart for Shift-Left Testing
+            const shiftLeftCtx = document.getElementById('shiftLeftChart').getContext('2d');
+            new Chart(shiftLeftCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Diseño', 'Desarrollo', 'QA', 'Producción'],
+                    datasets: [{
+                        label: 'Costo Relativo de Corrección de Bug',
+                        data: [1, 10, 50, 200], // Costo relativo: 1 en diseño, 10 en desarrollo, 50 en QA, 200 en producción
+                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: false,
+                        pointBackgroundColor: 'rgba(255, 159, 64, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 1,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Costo Relativo'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Costo de Corrección de Bugs por Etapa de Desarrollo',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += 'x' + context.parsed.y;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            function renderQuiz() {
+                quizQuestionsContainer.innerHTML = '';
+                quizQuestions.forEach((q, index) => {
+                    const questionDiv = document.createElement('div');
+                    questionDiv.classList.add('mb-6', 'p-4', 'border', 'border-gray-200', 'rounded-lg', 'bg-gray-50');
+                    questionDiv.innerHTML = `
+                        <p class="font-semibold text-lg mb-3">${index + 1}. ${q.question}</p>
+                        <div class="space-y-2">
+                            ${q.options.map((option, optIndex) => `
+                                <label class="flex items-center text-gray-700 cursor-pointer">
+                                    <input type="radio" name="question${index}" value="${option}" class="mr-2 form-radio text-blue-500">
+                                    <span>${option}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    `;
+                    quizQuestionsContainer.appendChild(questionDiv);
+                });
+                quizForm.classList.remove('hidden');
+                quizResultsContainer.classList.add('hidden');
+            }
+
+            quizForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                let score = 0;
+                feedbackDisplay.innerHTML = '';
+
+                quizQuestions.forEach((q, index) => {
+                    const selectedOption = document.querySelector(`input[name="question${index}"]:checked`);
+                    const questionDiv = document.querySelector(`#quiz-questions > div:nth-child(${index + 1})`);
+                    
+                    if (selectedOption) {
+                        const isCorrect = selectedOption.value === q.answer;
+                        if (isCorrect) {
+                            score++;
+                            questionDiv.classList.remove('bg-gray-50');
+                            questionDiv.classList.add('bg-green-100', 'border-green-400');
+                        } else {
+                            questionDiv.classList.remove('bg-gray-50');
+                            questionDiv.classList.add('bg-red-100', 'border-red-400');
+                        }
+                        const feedback = document.createElement('p');
+                        feedback.classList.add('mb-2', 'text-sm');
+                        if (isCorrect) {
+                            feedback.innerHTML = `✔️ Pregunta ${index + 1}: Correcto.`;
+                            feedback.classList.add('text-green-700');
+                        } else {
+                            feedback.innerHTML = `❌ Pregunta ${index + 1}: Incorrecto. La respuesta correcta era: <span class="font-semibold">${q.answer}</span>.`;
+                            feedback.classList.add('text-red-700');
+                        }
+                        feedbackDisplay.appendChild(feedback);
+                    } else {
+                        const feedback = document.createElement('p');
+                        feedback.classList.add('mb-2', 'text-sm', 'text-yellow-700');
+                        feedback.innerHTML = `⚠️ Pregunta ${index + 1}: No respondida. La respuesta correcta era: <span class="font-semibold">${q.answer}</span>.`;
+                        feedbackDisplay.appendChild(feedback);
+                        questionDiv.classList.remove('bg-gray-50');
+                        questionDiv.classList.add('bg-yellow-100', 'border-yellow-400');
+                    }
+                });
+
+                scoreDisplay.textContent = `Tu puntuación: ${score} de ${quizQuestions.length}`;
+                quizForm.classList.add('hidden');
+                quizResultsContainer.classList.remove('hidden');
+            });
+
+            retakeQuizButton.addEventListener('click', () => {
+                renderQuiz();
+                quizResultsContainer.classList.add('hidden');
+                quizQuestionsContainer.querySelectorAll('div').forEach(div => {
+                    div.classList.remove('bg-green-100', 'border-green-400', 'bg-red-100', 'border-red-400', 'bg-yellow-100', 'border-yellow-400');
+                    div.classList.add('bg-gray-50');
+                });
+            });
+
+            renderQuiz(); // Initial render of the quiz
+        });
+    </script>
+</body>
+</html>
