@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Calm Neutrals -->
-    <!-- Application Structure Plan: The SPA is designed as an interactive educational hub. A fixed sidebar navigation allows users to jump to key topics (Intro, Pyramid, Test Types, Test Doubles, Best Practices, Quiz), which is more effective for learning and reference than a linear scroll. The core content is displayed in a main area, using interactive elements like a clickable pyramid, tabbed sections for detailed information, and a dynamic quiz. This structure breaks down complex information into manageable, explorable chunks, promoting user engagement and better understanding of the relationships between testing concepts. -->
+    <!-- Application Structure Plan: The SPA is designed as an interactive educational hub. A fixed sidebar navigation allows users to jump to key topics (Intro, Pyramid, Test Types, Test Doubles, Best Practices, Quiz), which is more effective for learning and reference than a linear scroll. The core content is displayed in a main area, using interactive elements like a clickable pyramid, tabbed sections for detailed information, and a dynamic quiz. This structure breaks down complex information into manageable, explorable chunks, promoting user-engagement and better understanding of the relationships between testing concepts. -->
     <!-- Visualization & Content Choices: 
         - Report Info: Testing Pyramid concept. -> Goal: Compare testing levels. -> Viz: Interactive pyramid (HTML/CSS) and a Chart.js bar chart comparing test volume/cost. -> Interaction: Clicking a pyramid layer highlights it and reveals summary data. -> Justification: Transforms a static concept into an engaging, explorable diagram, reinforcing the core ideas of cost and volume. -> Library: Chart.js.
         - Report Info: Details of Unit, Integration, E2E tests. -> Goal: Organize detailed content. -> Viz: Tabbed interface. -> Interaction: Click tabs to switch between test types. -> Justification: A standard, user-friendly pattern to present dense, related information without overwhelming the user. -> Library/Method: Vanilla JS.
@@ -87,6 +87,8 @@
                 <a href="#practices" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x2705; Mejores Prácticas</a>
                 <a href="#strategies" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F527; Estrategias y Metodologías</a>
                 <a href="#security-testing" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F512; Seguridad en el Testing</a>
+                <a href="#new-challenges" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F30D; Nuevos Desafíos</a>
+                <a href="#challenges" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F3C6; Desafíos Prácticos</a>
                 <a href="#quiz" class="nav-link block p-4 text-lg text-gray-700 font-medium">&#x1F4AC; Cuestionario</a>
             </nav>
         </aside>
@@ -243,43 +245,152 @@
             <div id="doubles" class="content-section">
                 <h2 class="text-4xl font-bold mb-4">🎭 Dobles de Test: Simulando Dependencias</h2>
                 <p class="text-lg text-gray-600 mb-8">
-                    Los dobles de test son objetos que se utilizan para reemplazar dependencias reales de un componente durante el testing. Esto permite aislar la unidad de código que se está probando y controlar su comportamiento, haciendo los tests más rápidos, confiables y reproducibles. Esta sección detalla los diferentes tipos de dobles de test y cuándo utilizar cada uno, con enlaces a ejemplos prácticos.
+                    Los dobles de test son objetos que se utilizan para reemplazar dependencias reales de un componente durante el testing. Esto permite aislar la unidad de código que se está probando y controlar su comportamiento, haciendo los tests más rápidos, confiables y reproducibles. Esta sección detalla los diferentes tipos de dobles de test y cuándo utilizar cada uno, con ejemplos de código React.
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
                         <h3 class="font-bold text-xl mb-2">Dummy (Objeto Ficticio)</h3>
                         <p>Objetos que se pasan pero nunca se usan. Sirven como marcadores de posición para llenar listas de parámetros.</p>
-                        <p class="mt-4">
-                            <a href="https://codesandbox.io/s/react-dummy-example-v9z9x" target="_blank" class="text-blue-500 hover:underline">Ejemplo de Dummy</a>
-                        </p>
+                        <pre class="bg-gray-100 p-2 rounded-md text-left text-sm mt-4 overflow-x-auto"><code>
+// Este es un ejemplo de código React/Testing Library.
+// Requiere un entorno de desarrollo React (ej. Create React App, Vite)
+// y un framework de testing (ej. Jest, React Testing Library) para ejecutarse.
+
+// componente que usa un prop dummy que no es relevante para el test
+function MyComponent({ data, dummyProp }) {
+  return &lt;div&gt;{data}&lt;/div&gt;;
+}
+
+// Ejemplo de cómo se testearía con React Testing Library
+// test('MyComponent renders data', () => {
+//   render(&lt;MyComponent data="Hello" dummyProp={null} /&gt;);
+//   expect(screen.getByText('Hello')).toBeInTheDocument();
+// });
+                        </code></pre>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
                         <h3 class="font-bold text-xl mb-2">Stub (Sustituto)</h3>
                         <p>Proporcionan respuestas predefinidas a las llamadas durante el test, sin lógica real. Útiles para controlar el comportamiento de una dependencia.</p>
-                        <p class="mt-4">
-                            <a href="https://codesandbox.io/s/react-stub-example-f2x2q" target="_blank" class="text-blue-500 hover:underline">Ejemplo de Stub</a>
-                        </p>
+                        <pre class="bg-gray-100 p-2 rounded-md text-left text-sm mt-4 overflow-x-auto"><code>
+// Este es un ejemplo de código React/Testing Library.
+// Requiere un entorno de desarrollo React (ej. Create React App, Vite)
+// y un framework de testing (ej. Jest, React Testing Library) para ejecutarse.
+
+// módulo de servicio real
+// function fetchUser(id) { /* hace una llamada a la API */ }
+
+// stub para la función fetchUser
+const stubFetchUser = (id) => {
+  if (id === 1) return { id: 1, name: 'John Doe' };
+  return null;
+};
+
+// componente que usa el servicio (asume useState, useEffect importados en un entorno React)
+function UserProfile({ userId, fetchUserFn }) {
+  // const [user, setUser] = useState(null); // Descomentar en entorno React real
+  // useEffect(() => { // Descomentar en entorno React real
+  //   fetchUserFn(userId).then(setUser);
+  // }, [userId, fetchUserFn]);
+  // return user ? &lt;div&gt;{user.name}&lt;/div&gt; : &lt;div&gt;Cargando...&lt;/div&gt;;
+  return "&lt;UserProfile /&gt; (ejemplo de componente)";
+}
+
+// Ejemplo de cómo se testearía con React Testing Library
+// test('UserProfile shows user name', async () => {
+//   render(&lt;UserProfile userId={1} fetchUserFn={stubFetchUser} /&gt;);
+//   expect(await screen.findByText('John Doe')).toBeInTheDocument();
+// });
+                        </code></pre>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
                         <h3 class="font-bold text-xl mb-2">Spy (Espía)</h3>
                         <p>Son objetos reales que se utilizan para registrar llamadas a métodos o propiedades. Permiten verificar si un método fue llamado, cuántas veces, y con qué argumentos.</p>
-                        <p class="mt-4">
-                            <a href="https://codesandbox.io/s/react-spy-example-j7t7p" target="_blank" class="text-blue-500 hover:underline">Ejemplo de Spy</a>
-                        </p>
+                        <pre class="bg-gray-100 p-2 rounded-md text-left text-sm mt-4 overflow-x-auto"><code>
+// Este es un ejemplo de código React/Testing Library.
+// Requiere un entorno de desarrollo React (ej. Create React App, Vite)
+// y un framework de testing (ej. Jest, React Testing Library) para ejecutarse.
+
+// función real
+const saveItem = (item) => console.log('Saving', item);
+
+// Ejemplo de cómo se testearía con React Testing Library
+// test('save button calls saveItem', () => {
+//   const spySaveItem = jest.spyOn(window, 'saveItem');
+//   render(&lt;button onClick={() => saveItem('data')} &gt;Save&lt;/button&gt;);
+//   fireEvent.click(screen.getByText('Save'));
+//   expect(spySaveItem).toHaveBeenCalledWith('data');
+//   spySaveItem.mockRestore();
+// });
+                        </code></pre>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
                         <h3 class="font-bold text-xl mb-2">Mock (Simulacro)</h3>
                         <p>Objetos pre-programados con expectativas sobre cómo se les llamará. Fallan el test si las expectativas no se cumplen. Se centran en la verificación del comportamiento.</p>
-                        <p class="mt-4">
-                            <a href="https://codesandbox.io/s/react-mock-example-k4p4m" target="_blank" class="text-blue-500 hover:underline">Ejemplo de Mock</a>
-                        </p>
+                        <pre class="bg-gray-100 p-2 rounded-md text-left text-sm mt-4 overflow-x-auto"><code>
+// Este es un ejemplo de código React/Testing Library.
+// Requiere un entorno de desarrollo React (ej. Create React App, Vite)
+// y un framework de testing (ej. Jest, React Testing Library) para ejecutarse.
+
+// módulo de servicio real
+// function submitForm(data) { /* envía datos a la API */ }
+
+// mock para la función submitForm (asume jest.fn() disponible en entorno de test)
+// const mockSubmitForm = jest.fn(() => Promise.resolve({ success: true }));
+
+// componente que usa el servicio
+function MyForm({ onSubmit }) {
+  const handleSubmit = () => onSubmit({ name: 'Test' });
+  return &lt;button onClick={handleSubmit}&gt;Submit&lt;/button&gt;;
+}
+
+// Ejemplo de cómo se testearía con React Testing Library
+// test('form submission calls onSubmit', async () => {
+//   render(&lt;MyForm onSubmit={mockSubmitForm} /&gt;);
+//   fireEvent.click(screen.getByText('Submit'));
+//   expect(mockSubmitForm).toHaveBeenCalledTimes(1);
+//   expect(mockSubmitForm).toHaveBeenCalledWith({ name: 'Test' });
+// });
+                        </code></pre>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
                         <h3 class="font-bold text-xl mb-2">Fake (Falso)</h3>
                         <p>Implementaciones con funcionalidad real, pero simplificadas. Por ejemplo, una base de datos en memoria en lugar de una real.</p>
-                        <p class="mt-4">
-                            <a href="https://codesandbox.io/s/react-fake-example-g8r8s" target="_blank" class="text-blue-500 hover:underline">Ejemplo de Fake</a>
-                        </p>
+                        <pre class="bg-gray-100 p-2 rounded-md text-left text-sm mt-4 overflow-x-auto"><code>
+// Este es un ejemplo de código React/Testing Library.
+// Requiere un entorno de desarrollo React (ej. Create React App, Vite)
+// y un framework de testing (ej. Jest, React Testing Library) para ejecutarse.
+
+// repositorio de datos real
+// class UserRepository { constructor(db) { ... } findAll() { ... } }
+
+// fake de un repositorio de usuario en memoria
+class FakeUserRepository {
+  constructor() { this.users = [{ id: 1, name: 'Alice' }]; }
+  async findAll() { return this.users; }
+  async findById(id) { return this.users.find(u => u.id === id); }
+}
+
+// componente que usa el repositorio (asume useState, useEffect importados en un entorno React)
+function UserList({ userRepository }) {
+  // const [users, setUsers] = useState([]); // Descomentar en entorno React real
+  // useEffect(() => { // Descomentar en entorno React real
+  //   userRepository.findAll().then(setUsers);
+  // }, [userRepository]);
+  // return (
+  //   &lt;ul&gt;
+  //     {users.map(user => &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;)}
+  //   &lt;/ul&gt;
+  // );
+  return "&lt;UserList /&gt; (ejemplo de componente)";
+}
+
+// Ejemplo de cómo se testearía con React Testing Library
+// test('UserList displays users from fake repo', async () => {
+//   const fakeRepo = new FakeUserRepository();
+//   render(&lt;UserList userRepository={fakeRepo} /&gt;);
+//   expect(await screen.findByText('Alice')).toBeInTheDocument();
+// });
+                        </code></pre>
                     </div>
                 </div>
             </div>
@@ -351,28 +462,6 @@
                         </div>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow">
-                        <h3 class="font-bold text-xl mb-2">Desarrollo Guiado por Comportamiento (BDD)</h3>
-                        <p>Extiende TDD enfocándose en el comportamiento del sistema desde la perspectiva del usuario. Utiliza un lenguaje ubicuo (ej. Gherkin: `Dado`, `Cuando`, `Entonces`) para facilitar la colaboración entre desarrolladores, QA y stakeholders.</p>
-                        <p class="text-sm text-gray-500 mt-2">**Analogía:** En lugar de que el arquitecto (desarrollador) y el cliente (usuario) hablen en lenguajes diferentes, BDD crea un plano común y comprensible para todos, asegurando que lo que se construye es exactamente lo que se necesita y cómo se espera que funcione.</p>
-                        <div class="mt-4 p-4 bg-gray-100 rounded-lg text-center text-sm text-gray-700">
-                            <p class="font-semibold">Ejemplo de Escenario BDD (Gherkin):</p>
-                            <pre class="bg-gray-200 p-2 rounded-md text-left mt-2 overflow-x-auto"><code>
-Característica: Gestión de Pedidos
-  Como cliente
-  Quiero poder añadir productos a mi carrito
-  Para poder comprarlos
-
-  Escenario: Añadir un producto al carrito
-    Dado que estoy en la página de un producto
-    Y el producto "Laptop X" está disponible con 5 unidades
-    Cuando añado "Laptop X" al carrito
-    Entonces el carrito debe mostrar "Laptop X" con 1 unidad
-    Y el stock de "Laptop X" debe ser 4
-                            </code></pre>
-                            <p class="mt-2 text-xs">Este formato facilita la comunicación y la automatización.</p>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow">
                         <h3 class="font-bold text-xl mb-2">Shift-Left Testing</h3>
                         <p>Mover las actividades de testing lo más temprano posible en el ciclo de desarrollo. En lugar de testear solo al final, se integra el testing desde el diseño y la codificación.</p>
                         <p class="text-sm text-gray-500 mt-2">**Analogía:** Es como un médico que previene enfermedades con chequeos regulares y hábitos saludables, en lugar de solo tratar enfermedades cuando ya están avanzadas. Detectar y corregir problemas temprano es exponencialmente más barato y menos disruptivo.</p>
@@ -432,6 +521,159 @@ Característica: Gestión de Pedidos
                 </div>
             </div>
 
+            <div id="new-challenges" class="content-section">
+                <h2 class="text-4xl font-bold mb-4">🚀 Nuevos Desafíos en el Testing de Software</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    El panorama del desarrollo de software evoluciona rápidamente, trayendo consigo nuevas arquitecturas, tecnologías y expectativas. Esto presenta desafíos únicos para el testing, exigiendo a los equipos adaptarse y expandir sus enfoques de calidad. Aquí exploramos algunos de los retos más relevantes en la actualidad.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Microservicios y Sistemas Distribuidos</h3>
+                        <p>Testing de servicios independientes que interactúan en un ecosistema complejo. La dificultad radica en la observabilidad, la latencia de red y la consistencia de datos entre múltiples componentes.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Reto:** Asegurar la comunicación y el comportamiento correcto de flujos que atraviesan varios servicios, cada uno con su propio ciclo de vida y despliegue.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Caso Real:** Empresas como **Uber** enfrentan el desafío de testear más de 2200 microservicios interconectados. Un fallo en un servicio puede tener un efecto cascada, haciendo que la identificación de la causa raíz sea "extremadamente tediosa y costosa". Su estrategia incluye la implementación de pruebas de contrato y virtualización de servicios para gestionar esta complejidad.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Inteligencia Artificial (IA) y Machine Learning (ML)</h3>
+                        <p>Testing de modelos de IA cuyo comportamiento puede ser no determinístico y evolucionar con los datos. Desafíos en la validación de la ética, el sesgo, la explicabilidad y la robustez ante datos inesperados.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Reto:** ¿Cómo probar algo que "aprende"? Requiere un enfoque diferente al testing tradicional, centrado en los datos y el comportamiento del modelo.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Caso Real:** Una empresa de banca digital experimentó una exposición de detalles de transacciones de clientes debido a una aplicación impulsada por IA, lo que resultó en una multa multimillonaria por GDPR. Esto subraya la necesidad crítica de pruebas rigurosas de privacidad de datos y sesgo en los modelos de IA.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Seguridad y Privacidad (DevSecOps)</h3>
+                        <p>Integrar el testing de seguridad desde las primeras etapas del ciclo de desarrollo (Shift-Left Security). La creciente complejidad de las amenazas y las regulaciones de privacidad (GDPR, CCPA) hacen que la seguridad sea una preocupación constante.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Reto:** No solo encontrar vulnerabilidades, sino también asegurar el cumplimiento normativo y la protección de datos sensibles a lo largo de todo el ciclo de vida del software.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Caso Real:** Empresas como **Auth0** y **Datadog** han implementado DevSecOps para crear una experiencia "sin fricciones" para los desarrolladores en la nube y priorizar la gestión de riesgos al principio del ciclo de vida del desarrollo de software (SDL). Esto incluye integrar la seguridad en las fases de la pipeline de entrega y empoderar a los desarrolladores con las mejores prácticas.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Rendimiento y Escalabilidad en la Nube</h3>
+                        <p>Probar aplicaciones que se despliegan en entornos de nube dinámicos y elásticos. La variabilidad de la infraestructura y la necesidad de escalar bajo demanda añaden complejidad al testing de rendimiento y carga.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Reto:** Simular escenarios de carga realistas en infraestructuras que cambian constantemente y asegurar que la aplicación se comporta de manera óptima y rentable.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Caso Real:** Un minorista de comercio electrónico sufrió una caída total del sistema durante una gran venta flash debido a la subestimación de la carga de usuarios. Las pruebas se realizaron para 10,000 usuarios concurrentes, pero el tráfico real superó los 50,000. Esto llevó a la reevaluación de la estrategia de caché y la implementación de reglas de autoescalado para la base de datos, mejorando significativamente el rendimiento.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Experiencia de Usuario (UX) y Accesibilidad</h3>
+                        <p>El testing va más allá de la funcionalidad. Asegurar que la aplicación es intuitiva, fácil de usar y accesible para personas con diversas capacidades (visión, audición, movilidad).</p>
+                        <p class="text-sm text-gray-500 mt-2">**Reto:** Incorporar pruebas de usabilidad y accesibilidad automatizadas y manuales para garantizar una experiencia inclusiva y satisfactoria para todos los usuarios.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Caso Real:** Compañías como **TPGi** se especializan en proporcionar plataformas y consultoría para asegurar la accesibilidad digital, ayudando a las empresas a cumplir con normativas como la ADA y WCAG, y a crear experiencias inclusivas para usuarios con diversas capacidades. Puedes ver sus casos de estudio en su sitio oficial.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition-shadow">
+                        <h3 class="font-bold text-xl mb-2">Observabilidad y Monitoreo en Producción</h3>
+                        <p>El testing no termina en el despliegue. Implementar herramientas robustas de observabilidad (logs, métricas, traces) para monitorear el comportamiento de la aplicación en producción y detectar problemas de forma proactiva.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Reto:** Utilizar los datos de producción para informar y mejorar las estrategias de testing, cerrando el ciclo de feedback y permitiendo una respuesta rápida ante incidentes.</p>
+                        <p class="text-sm text-gray-500 mt-2">**Caso Real:** **Netflix** es un referente en observabilidad. Su sistema de "Title Launch Observability" asegura que cada nuevo título esté disponible y personalizado correctamente para los espectadores en todo el mundo, detectando problemas de ciclo de vida y configuración antes de que un título se lance.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="challenges" class="content-section">
+                <h2 class="text-4xl font-bold mb-4">Desafíos Prácticos de Testing</h2>
+                <p class="text-lg text-gray-600 mb-8">
+                    ¡Es hora de poner a prueba tus habilidades! Resuelve estos mini-desafíos para consolidar tu comprensión sobre los diferentes tipos de test y dobles de test, y reflexionar sobre el futuro del testing.
+                </p>
+
+                <!-- Challenge 1 -->
+                <div class="bg-white p-6 rounded-lg shadow mb-8">
+                    <h3 class="font-bold text-2xl mb-4">Desafío 1: Escenario de Testeo de Módulo</h3>
+                    <p class="mb-4 text-gray-700">
+                        Estás trabajando en un módulo o función que es responsable de procesar y mostrar datos obtenidos de un servicio externo (ej. una API). Quieres asegurarte de que este módulo renderiza o procesa correctamente los datos cuando el servicio externo responde exitosamente, **sin realizar una llamada real a ese servicio**.
+                    </p>
+                    <div class="mb-4">
+                        <p class="font-semibold mb-2">1. ¿Qué tipo de test es el más adecuado para este escenario?</p>
+                        <div class="space-y-2">
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge1_type" value="unitario" class="mr-2 form-radio text-blue-500">
+                                <span>Unitario</span>
+                            </label>
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge1_type" value="integracion" class="mr-2 form-radio text-blue-500">
+                                <span>Integración</span>
+                            </label>
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge1_type" value="e2e" class="mr-2 form-radio text-blue-500">
+                                <span>End-to-End (E2E)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <p class="font-semibold mb-2">2. ¿Qué doble de test usarías para simular la respuesta del servicio externo?</p>
+                        <div class="space-y-2">
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge1_double" value="dummy" class="mr-2 form-radio text-blue-500">
+                                <span>Dummy</span>
+                            </label>
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge1_double" value="stub" class="mr-2 form-radio text-blue-500">
+                                <span>Stub</span>
+                            </label>
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge1_double" value="spy" class="mr-2 form-radio text-blue-500">
+                                <span>Spy</span>
+                            </label>
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge1_double" value="mock" class="mr-2 form-radio text-blue-500">
+                                <span>Mock</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button id="check-challenge1" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors">
+                        Verificar Respuesta
+                    </button>
+                    <div id="feedback-challenge1" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
+                </div>
+
+                <!-- Challenge 2 -->
+                <div class="bg-white p-6 rounded-lg shadow mb-8">
+                    <h3 class="font-bold text-2xl mb-4">Desafío 2: Verificación de Interacciones y Flujos</h3>
+                    <p class="mb-4 text-gray-700">
+                        Estás desarrollando un sistema de gestión de pedidos. Cuando un usuario confirma una compra, el sistema debe:
+                        <ul class="list-disc list-inside ml-4 mt-2">
+                            <li>Actualizar el estado del pedido en la base de datos.</li>
+                            <li>Enviar una notificación de confirmación al usuario por correo electrónico.</li>
+                            <li>Registrar la transacción en un sistema de auditoría.</li>
+                        </ul>
+                    </p>
+                    <div class="mb-4">
+                        <p class="font-semibold mb-2">1. Quieres verificar que todo el flujo de confirmación de compra funciona correctamente, desde la interfaz de usuario hasta la persistencia en la base de datos y el envío de la notificación, utilizando los sistemas reales. ¿Qué tipo de test es el más adecuado para este escenario?</p>
+                        <div class="space-y-2">
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge2_q1_type" value="unitario" class="mr-2 form-radio text-blue-500">
+                                <span>Unitario</span>
+                            </label>
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge2_q1_type" value="integracion" class="mr-2 form-radio text-blue-500">
+                                <span>Integración</span>
+                            </label>
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge2_q1_type" value="e2e" class="mr-2 form-radio text-blue-500">
+                                <span>End-to-End (E2E)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <p class="font-semibold mb-2">2. Si solo quieres probar que la lógica de actualización del estado del pedido funciona correctamente con la base de datos, pero sin involucrar la interfaz de usuario ni el envío de correos. ¿Qué tipo de test sería más adecuado?</p>
+                        <div class="space-y-2">
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge2_q2_type" value="unitario" class="mr-2 form-radio text-blue-500">
+                                <span>Unitario</span>
+                            </label>
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge2_q2_type" value="integracion" class="mr-2 form-radio text-blue-500">
+                                <span>Integración</span>
+                            </label>
+                            <label class="flex items-center text-gray-700 cursor-pointer">
+                                <input type="radio" name="challenge2_q2_type" value="e2e" class="mr-2 form-radio text-blue-500">
+                                <span>End-to-End (E2E)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button id="check-challenge2" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg shadow-md transition-colors">
+                        Verificar Respuesta
+                    </button>
+                    <div id="feedback-challenge2" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
+                </div>
+            </div>
+
             <div id="quiz" class="content-section">
                 <h2 class="text-4xl font-bold mb-4">❓ Cuestionario: Pon a Prueba tus Conocimientos</h2>
                 <p class="text-lg text-gray-600 mb-8">
@@ -474,6 +716,13 @@ Característica: Gestión de Pedidos
             const scoreDisplay = document.getElementById('score-display');
             const feedbackDisplay = document.getElementById('feedback-display');
             const retakeQuizButton = document.getElementById('retake-quiz-button');
+
+            // Challenge elements
+            const checkChallenge1Btn = document.getElementById('check-challenge1');
+            const feedbackChallenge1Div = document.getElementById('feedback-challenge1');
+            const checkChallenge2Btn = document.getElementById('check-challenge2');
+            const feedbackChallenge2Div = document.getElementById('feedback-challenge2');
+
 
             const pyramidData = {
                 unit: {
@@ -551,7 +800,7 @@ Característica: Gestión de Pedidos
                     answer: "Tiene expectativas pre-programadas sobre cómo será llamado, fallando el test si no se cumplen, a diferencia de un Spy que solo observa."
                 },
                 {
-                    question: "¿Cuál es el objetivo principal de los tests de integración?",
+                    question: "Lógica de negocio. ¿Cuál es el objetivo principal de los tests de integración?",
                     options: [
                         "Verificar el comportamiento de unidades de código aisladas.",
                         "Asegurar que los diferentes módulos o servicios interactúan correctamente entre sí.",
@@ -813,20 +1062,6 @@ Característica: Gestión de Pedidos
                             font: {
                                 size: 16
                             }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += 'x' + context.parsed.y;
-                                    }
-                                    return label;
-                                }
-                            }
                         }
                     }
                 }
@@ -908,6 +1143,62 @@ Característica: Gestión de Pedidos
             });
 
             renderQuiz(); // Initial render of the quiz
+
+            // Challenge 1 Logic
+            checkChallenge1Btn.addEventListener('click', () => {
+                const selectedType = document.querySelector('input[name="challenge1_type"]:checked')?.value;
+                const selectedDouble = document.querySelector('input[name="challenge1_double"]:checked')?.value;
+
+                feedbackChallenge1Div.classList.remove('hidden', 'bg-green-100', 'bg-red-100');
+                feedbackChallenge1Div.classList.add('p-3');
+
+                if (selectedType === 'unitario' && selectedDouble === 'stub') {
+                    feedbackChallenge1Div.innerHTML = '¡Correcto! Un test unitario con un stub es ideal para este escenario.';
+                    feedbackChallenge1Div.classList.add('bg-green-100');
+                    feedbackChallenge1Div.classList.remove('bg-red-100');
+                } else {
+                    let feedbackText = 'Incorrecto. ';
+                    if (selectedType !== 'unitario' && selectedType) {
+                        feedbackText += 'El tipo de test más adecuado es Unitario. ';
+                    }
+                    if (selectedDouble !== 'stub' && selectedDouble) {
+                        feedbackText += 'El doble de test más adecuado es un Stub.';
+                    } else if (!selectedType || !selectedDouble) {
+                        feedbackText += 'Por favor, selecciona ambas opciones.';
+                    }
+                    feedbackChallenge1Div.innerHTML = feedbackText;
+                    feedbackChallenge1Div.classList.add('bg-red-100');
+                    feedbackChallenge1Div.classList.remove('bg-green-100');
+                }
+            });
+
+            // Challenge 2 Logic
+            checkChallenge2Btn.addEventListener('click', () => {
+                const selectedQ1Type = document.querySelector('input[name="challenge2_q1_type"]:checked')?.value;
+                const selectedQ2Type = document.querySelector('input[name="challenge2_q2_type"]:checked')?.value;
+
+                feedbackChallenge2Div.classList.remove('hidden', 'bg-green-100', 'bg-red-100');
+                feedbackChallenge2Div.classList.add('p-3');
+
+                if (selectedQ1Type === 'e2e' && selectedQ2Type === 'integracion') {
+                    feedbackChallenge2Div.innerHTML = '¡Correcto! E2E para el flujo completo y de Integración para la interacción con la base de datos.';
+                    feedbackChallenge2Div.classList.add('bg-green-100');
+                    feedbackChallenge2Div.classList.remove('bg-red-100');
+                } else {
+                    let feedbackText = 'Incorrecto. ';
+                    if (selectedQ1Type !== 'e2e' && selectedQ1Type) {
+                        feedbackText += 'Para la primera pregunta, el test E2E es el más adecuado. ';
+                    }
+                    if (selectedQ2Type !== 'integracion' && selectedQ2Type) {
+                        feedbackText += 'Para la segunda pregunta, el test de Integración es más adecuado. ';
+                    } else if (!selectedQ1Type || !selectedQ2Type) {
+                        feedbackText += 'Por favor, selecciona ambas opciones.';
+                    }
+                    feedbackChallenge2Div.innerHTML = feedbackText;
+                    feedbackChallenge2Div.classList.add('bg-red-100');
+                    feedbackChallenge2Div.classList.remove('bg-green-100');
+                }
+            });
         });
     </script>
 </body>
