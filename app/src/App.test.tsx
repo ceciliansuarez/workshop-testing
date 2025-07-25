@@ -11,8 +11,8 @@ describe("App", () => {
     expect(textElement).toBeInTheDocument();
   });
 
-  test("not render toto", () => {
-    const textElement = screen.queryByText(/toto/i);
+  test("not render NotFoundString", () => {
+    const textElement = screen.queryByText(/NotFoundString/i);
     expect(textElement).not.toBeInTheDocument();
   });
 
